@@ -4,6 +4,8 @@ A clickable demo of a client management system for **Sunrise Community Alliance*
 
 Everything runs in the browser with realistic mock data. There is no backend, no login server, and no internet needed.
 
+**▶ Live demo:** https://storage.googleapis.com/pantrybridge-demo-babuji/index.html
+
 ## Run the demo
 
 The finished demo is already built: **`dist/index.html`** (one self-contained file, about 540 KB).
@@ -13,7 +15,7 @@ The finished demo is already built: **`dist/index.html`** (one self-contained fi
 | **Offline (no install)** | Double-click `dist/index.html`, or `start-demo.bat` (Windows) / `start-demo.command` (Mac). |
 | **Local server** | `npm install`, then `npm run demo` → opens http://localhost:4173 |
 | **Share by USB / email** | Zip just `dist/index.html`. The recipient double-clicks it. |
-| **Online** | Upload `dist/index.html` to S3 or Google Cloud Storage (below). |
+| **Online** | Live at https://storage.googleapis.com/pantrybridge-demo-babuji/index.html (see Deploy below to update it). |
 
 The same file works in all four cases.
 
@@ -64,14 +66,22 @@ aws s3 cp dist/index.html s3://pantrybridge-demo/index.html --cache-control "no-
 ```
 URL: `http://pantrybridge-demo.s3-website-us-east-1.amazonaws.com`
 
-**Google Cloud Storage**
-```bash
-gcloud storage buckets create gs://pantrybridge-demo --location=us-east1 --uniform-bucket-level-access
-gcloud storage cp dist/index.html gs://pantrybridge-demo/index.html --cache-control="no-cache"
-gcloud storage buckets add-iam-policy-binding gs://pantrybridge-demo --member=allUsers --role=roles/storage.objectViewer
-gcloud storage buckets update gs://pantrybridge-demo --web-main-page-suffix=index.html --not-found-page=index.html
+**Google Cloud Storage** (current live demo)
+
+Bucket: `gs://pantrybridge-demo-babuji` · URL: https://storage.googleapis.com/pantrybridge-demo-babuji/index.html
+
+To publish an update (PowerShell, after `npm run build`):
+```powershell
+gcloud storage cp dist\index.html gs://pantrybridge-demo-babuji/index.html --cache-control="no-cache"
 ```
-URL: `https://storage.googleapis.com/pantrybridge-demo/index.html`
+
+First-time setup of a new bucket:
+```bash
+gcloud storage buckets create gs://pantrybridge-demo-babuji --location=us-east1 --uniform-bucket-level-access --no-public-access-prevention
+gcloud storage buckets add-iam-policy-binding gs://pantrybridge-demo-babuji --member=allUsers --role=roles/storage.objectViewer
+gcloud storage cp dist/index.html gs://pantrybridge-demo-babuji/index.html --cache-control="no-cache"
+```
+Always share the link ending in `/index.html`. Without a custom domain, Google Cloud serves files only by their full path.
 
 > Bucket names are global. If `pantrybridge-demo` is taken, pick another name. The bucket is public, which is fine for fake demo data. **Never upload real client data to it.**
 
